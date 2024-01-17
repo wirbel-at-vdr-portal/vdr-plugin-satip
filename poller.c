@@ -82,6 +82,14 @@ void cSatipPoller::Action(void)
         ERROR_IF_FUNC((nfds == -1 && errno != EINTR), "epoll_wait() failed", break, ;);
         for (int i = 0; i < nfds; ++i) {
             cSatipPollerIf* poll = reinterpret_cast<cSatipPollerIf *>(events[i].data.ptr);
+            uint32_t unexpected = EPOLLRDHUP | EPOLLHUP;
+            if (events[i].events & unexpected) {
+               dbg_funcname("%s: unexpected peer hangup on fd=%d %s", \
+                            __PRETTY_FUNCTION__,                      \
+                            events[i].data.fd,                        \
+                            poll?*(poll->ToString()):"");
+               epoll_ctl(fdM, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+               }
             if (poll) {
                uint64_t elapsed;
                cTimeMs processing(0);
@@ -103,7 +111,7 @@ bool cSatipPoller::Register(cSatipPollerIf &pollerP)
   cMutexLock MutexLock(&mutexM);
 
   struct epoll_event ev;
-  ev.events = EPOLLIN | EPOLLET;
+  ev.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
   ev.data.ptr = &pollerP;
   ERROR_IF_RET(epoll_ctl(fdM, EPOLL_CTL_ADD, pollerP.GetFd(), &ev) == -1, "epoll_ctl(EPOLL_CTL_ADD) failed", return false);
   dbg_funcname("%s Added interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
@@ -115,8 +123,37 @@ bool cSatipPoller::Unregister(cSatipPollerIf &pollerP)
 {
   dbg_funcname("%s fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
   cMutexLock MutexLock(&mutexM);
-  ERROR_IF_RET((epoll_ctl(fdM, EPOLL_CTL_DEL, pollerP.GetFd(), NULL) == -1), "epoll_ctl(EPOLL_CTL_DEL) failed", return false);
-  dbg_funcname("%s Removed interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
+  if (epoll_ctl(fdM, EPOLL_CTL_DEL, pollerP.GetFd(), NULL) != 0) {
+     if (errno == ENOENT /* No such file or directory */) {
+        /* op was EPOLL_CTL_DEL, and fd is not registered with this epoll
+         * instance.
+         *
+         * Our known fd points to an invalid or closed kernel 'file description'.
+         * We can do what we want, we lost control on this epoll interest list entry.
+         * Repeating EPOLL_CTL_DEL will trigger this message once again.
+         *
+         * On the other hand, epoll man page says, that epoll will remove invalid
+         * file descriptions from the interest list by itself.
+         */
+        return true;
+        }
+     if (errno == EBADF /* Bad file number */) {
+        /*
+         * epfd or fd is not a valid file descriptor.
+         * Well, epfd cannot be a bad fd, i guess.
+         */
+        error("%s failed: Bad file number (EBADF) fd=%d",
+              __PRETTY_FUNCTION__, pollerP.GetFd());
+        return false;
+        }
+     else {
+        error("epoll_ctl(EPOLL_CTL_DEL) failed: %s (%d)",
+              strerror(errno), errno);
+        return false;
+        }
+     }
+  else
+     dbg_funcname("%s Removed interface fd=%d", __PRETTY_FUNCTION__, pollerP.GetFd());
 
   return true;
 }
