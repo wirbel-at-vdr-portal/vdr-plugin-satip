@@ -48,6 +48,18 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
       }
   doneqM = doneq ? 1 : 0;
 
+  CreateSocketPair();
+}
+
+cSatipSectionFilter::~cSatipSectionFilter()
+{
+  dbg_funcname_ext("%s pid=%d [device %d]", __PRETTY_FUNCTION__, pidM, deviceIndexM);
+  CloseSocketPair();
+  secBufM = NULL;
+  DELETENULL(ringBufferM);
+}
+
+void cSatipSectionFilter::CreateSocketPair(void) {
   // Create sockets
   socketM[0] = socketM[1] = -1;
   if (socketpair(AF_UNIX, SOCK_SEQPACKET, 0, socketM) != 0) {
@@ -60,9 +72,7 @@ cSatipSectionFilter::cSatipSectionFilter(int deviceIndexP, uint16_t pidP, uint8_
      }
 }
 
-cSatipSectionFilter::~cSatipSectionFilter()
-{
-  dbg_funcname_ext("%s pid=%d [device %d]", __PRETTY_FUNCTION__, pidM, deviceIndexM);
+void cSatipSectionFilter::CloseSocketPair(void) {
   int tmp = socketM[1];
   socketM[1] = -1;
   if (tmp >= 0)
@@ -71,8 +81,6 @@ cSatipSectionFilter::~cSatipSectionFilter()
   socketM[0] = -1;
   if (tmp >= 0)
      close(tmp);
-  secBufM = NULL;
-  DELETENULL(ringBufferM);
 }
 
 inline uint16_t cSatipSectionFilter::GetLength(const uint8_t *dataP)
@@ -223,8 +231,23 @@ void cSatipSectionFilter::Send(void)
            // Update statistics
            AddSectionStatistic(count, 1);
            }
-        else if (errno != EAGAIN)
-          error("failed to send section data (%i bytes) [device=%d]", count, deviceIndexM);
+        else switch(errno) {
+           case EAGAIN:
+              // we may add some debug here later.
+              break;
+           case ECONNRESET:
+              error("Connection reset by peer (%i bytes left) [device=%d]", count, deviceIndexM);
+              CloseSocketPair();
+              CreateSocketPair();
+              break;
+           case EPIPE:
+              error("Broken pipe (%i bytes left) [device=%d]", count, deviceIndexM);
+              CloseSocketPair();
+              CreateSocketPair();
+              break;
+           default:
+              error("failed to send section data (%i bytes) [device=%d]", count, deviceIndexM);
+           }
         }
      ringBufferM->Drop(section);
      }

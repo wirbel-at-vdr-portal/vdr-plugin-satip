@@ -50,6 +50,8 @@ private:
   int Filter(void);
   inline int Feed(void);
   int CopyDump(const uint8_t *bufP, uint8_t lenP);
+  void CreateSocketPair(void);
+  void CloseSocketPair(void);
 
 public:
   // constructor & destructor
