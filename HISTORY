@@ -231,4 +231,5 @@ VDR Plugin 'satip' Revision History
 2024-0x-xx@wirbel
 - add bug fix from jojo61, streamID 0 is a valid stream ID.
   see https://github.com/rofafor/vdr-plugin-satip/issues/85
-
+- add bug fix from kfb77,
+  "replace ',' with '.' in float type frequency on german systems"

@@ -8,6 +8,7 @@
 #include <sstream>   // std::stringstream
 #include <ctype.h>
 #include <vdr/dvbdevice.h>
+#include <repfunc.h>
 #include "common.h"
 #include "param.h"
 
@@ -177,7 +178,9 @@ std::string GetTransponderUrlParameters(const cChannel* channel) {
      auto PrintFloat = [](float& f) -> std::string {
         char buf[32];
         snprintf(buf, sizeof(buf), "%.3f", f);
-        return buf;
+        std::string s((const char *) buf);
+        ReplaceAll(s, ",", ".");
+        return s;
         };
 
      auto check = [](std::string s, char Type, int delsys) {
