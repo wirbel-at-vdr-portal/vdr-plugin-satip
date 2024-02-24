@@ -48,20 +48,20 @@ bool cSatipFrontends::Assign(int deviceIdP, int transponderP)
          }
       if (!f->Attached()) {
          tmp = f;
-         }         
+         }
       }
   if (tmp) {
      tmp->SetTransponder(transponderP);
      dbg_chan_switch("%s assigned TP %d to %s/#%d", __PRETTY_FUNCTION__, transponderP, *tmp->Description(), tmp->Index());
      return true;
      }
-  error("no assignable frontend found [device %u]", deviceIdP);   
+  error("no assignable frontend found [device %u]", deviceIdP);
   return false;
 }
 
 bool cSatipFrontends::Attach(int deviceIdP, int transponderP)
 {
-  cSatipFrontend *tmp = NULL;  
+  cSatipFrontend *tmp = NULL;
   for (cSatipFrontend *f = First(); f; f = Next(f)) {
       if (f->Transponder() == transponderP) {
          tmp = f;
@@ -70,13 +70,13 @@ bool cSatipFrontends::Attach(int deviceIdP, int transponderP)
             }
          }
       }
-      
+
   if (tmp) {
      tmp->Attach(deviceIdP);
      dbg_chan_switch("%s attached deviceId %d (TP %d) to %s/#%d", __PRETTY_FUNCTION__, deviceIdP, transponderP, *tmp->Description(), tmp->Index());
      return true;
      }
-  error("%s no Frontend found for attaching deviceID %d (TP %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);      
+  error("%s no Frontend found for attaching deviceID %d (TP %d)", __PRETTY_FUNCTION__, deviceIdP, transponderP);
   return false;
 }
 

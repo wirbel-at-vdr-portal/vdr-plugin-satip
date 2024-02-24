@@ -34,7 +34,7 @@ private:
   uint16_t tsFeedpM;
   uint16_t pidM;
   uint8_t tidM;
-  uint8_t maskM;  
+  uint8_t maskM;
 
   cRingBufferFrame *ringBufferM;
   int deviceIndexM;
