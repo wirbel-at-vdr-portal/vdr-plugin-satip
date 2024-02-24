@@ -1,3 +1,30 @@
+/*******************************************************************************
+ * This is a fork of the vdr-plugin-satip, see
+ *    https://github.com/rofafor/vdr-plugin-satip.
+ *
+ * It is adopted to be used in w_scan_cpp, in parallel to be used in VDR.
+ * For copyright and remarks, please respect the original authors choice,
+ * see below.
+ *
+ * Latest version of this fork:
+ *    https://github.com/wirbel-at-vdr-portal/vdr-plugin-satip
+ * Author of fork and contact, see w_scan_cpp/README:
+ *    https://github.com/wirbel-at-vdr-portal/w_scan_cpp/blob/main/README
+ *
+ * About versioning.
+ *    This fork uses YYYYMMDD as versioning, to be clearly distinguishable
+ *    from the original authors versioning, which uses MAJOR.MINOR.PATCH
+ *
+ * Requirements.
+ * In addition to the original requirements below, the following sources
+ * are needed to build this version of the plugin:
+ *    - librepfunc >= 1.7.0
+ *      https://github.com/wirbel-at-vdr-portal/librepfunc 
+ *
+ *
+ * Please read and respect the original authors README below.
+ *  -- wirbel
+ ******************************************************************************/
 This is an SAT>IP plugin for the Video Disk Recorder (VDR).
 
 Written by:                  Rolf Ahrenberg
