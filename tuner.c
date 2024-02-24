@@ -230,7 +230,7 @@ bool cSatipTuner::Connect(void)
      if (streamIdM >= 0) {
         if (!strcmp(*streamParamM, *lastParamM) && hasLockM) {
            dbg_funcname("%s Identical parameters [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-           return true;
+           //return true; // fall through because detection does not work reliably
            }
         cString uri = cString::sprintf("%sstream=%d?%s", *connectionUri, streamIdM, *streamParamM);
         dbg_funcname("%s Retuning [device %d]", __PRETTY_FUNCTION__, deviceIdM);
@@ -249,6 +249,7 @@ bool cSatipTuner::Connect(void)
         if (useTcp)
            dbg_funcname("%s Requesting TCP [device %d]", __PRETTY_FUNCTION__, deviceIdM);
         if (rtspM.Setup(*uri, rtpM.Port(), rtcpM.Port(), useTcp)) {
+           lastParamM = streamParamM;
            keepAliveM.Set(timeoutM);
            if (nextServerM.IsValid()) {
               currentServerM = nextServerM;
@@ -664,9 +665,11 @@ bool cSatipTuner::UpdatePids(bool forceP)
            tnrParamM = param;
            }
         }
-     pidUpdateCacheM.Set(ePidUpdateIntervalMs);
-     if (!rtspM.Play(*uri))
-        return false;
+     if (paramadded) {
+        pidUpdateCacheM.Set(ePidUpdateIntervalMs);
+        if (!rtspM.Play(*uri))
+           return false;
+        }
      addPidsM.Clear();
      delPidsM.Clear();
      }
