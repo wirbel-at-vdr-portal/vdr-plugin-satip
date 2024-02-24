@@ -228,9 +228,31 @@ VDR Plugin 'satip' Revision History
 - Updated detectsatip script for Python 3.
 - Fixed keepalive interval.
 
+
+
+/*******************************************************************************
+ * HISTORY for wirbel's fork below.
+ ******************************************************************************/
+
 20240221@wirbel
+----------------------------------------------------------------------
 - add bug fix from jojo61, streamID 0 is a valid stream ID.
   see https://github.com/rofafor/vdr-plugin-satip/issues/85
 - add bug fix from kfb77,
   "replace ',' with '.' in float type frequency on german systems"
 - update README && prepare for tag 20240221
+
+
+20240224@wirbel
+----------------------------------------------------------------------
+- backport changes from rofafor/master after fork (>= 2021.05.30)
+  - patch && reminder by DrSeltsam - thanks
+  - Several fixes for Sat-IP (#82) (FireFly, PR by M-Reimer)
+    - vdr-satip_transfer-mode_fix.diff
+    - satip_retune_fix.diff
+    - satip_secfilter_fix.diff
+  - More fixes from Firefly (#84) (madmartin, FireFlyVdr)
+    - fix missing retune resulting in black screen
+    - avoid empty and therefore useless requests to SATIP server
+- cleanup whitespaces after backport
+- update HISTORY && prepare for tag 20240224
