@@ -5,6 +5,7 @@
  *
  */
 
+#include <string>
 #define __STDC_FORMAT_MACROS // Required for format specifiers
 #include <inttypes.h>
 
@@ -517,45 +518,55 @@ bool cSatipRtsp::ValidateLatestResponse(long *rcP)
      long rc = 0;
      CURLcode res = CURLE_OK;
      SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_RESPONSE_CODE, &rc);
-     switch (rc) {
-       case 200:
-            result = true;
-            break;
-       case 400:
-            // SETUP PLAY TEARDOWN
-            // The message body of the response may contain the "Check-Syntax:" parameter followed
-            // by the malformed syntax
-            if (!isempty(*errorCheckSyntaxM)) {
-               SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
-               error("Check syntax: %s (error code %ld: %s) [device %d]", *errorCheckSyntaxM, rc, url, tunerM.GetId());
-               break;
-               }
-       case 403:
-            // SETUP PLAY TEARDOWN
-            // The message body of the response may contain the "Out-of-Range:" parameter followed
-            // by a space-separated list of the attribute names that are not understood:
-            // "src" "fe" "freq" "pol" "msys" "mtype" "plts" "ro" "sr" "fec" "pids" "addpids" "delpids" "mcast"
-            if (!isempty(*errorOutOfRangeM)) {
-               SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
-               error("Out of range: %s (error code %ld: %s) [device %d]", *errorOutOfRangeM, rc, url, tunerM.GetId());
-               // Reseting the connection wouldn't help anything due to invalid channel configuration, so let it be successful
-               result = true;
-               break;
-               }
-       case 503:
-            // SETUP PLAY
-            // The message body of the response may contain the "No-More:" parameter followed
-            // by a space-separated list of the missing ressources: “sessions” "frontends" "pids
-            if (!isempty(*errorNoMoreM)) {
-               SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
-               error("No more: %s (error code %ld: %s) [device %d]", *errorNoMoreM, rc, url, tunerM.GetId());
-               break;
-               }
-       default:
-            SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
-            error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerM.GetId());
-            break;
-       }
+     if (rc != 200)
+        SATIP_CURL_EASY_GETINFO(handleM, CURLINFO_EFFECTIVE_URL, &url);
+
+     switch(rc) {
+        case 200: // 200 OK (SETUP, PLAY, TEARDOWN, OPTIONS, DESCRIBE)
+           result = true;
+           break;
+        case 400: { // 400 Bad Request, SETUP, PLAY, TEARDOWN
+           /* The message body of the response may contain "Check-Syntax:"
+            * followed by malformed syntax
+            */
+           std::string err(__FUNCTION__);
+           if (!isempty(*errorCheckSyntaxM))
+              err += " Check-Syntax: " + std::string(*errorCheckSyntaxM) + " ";
+           error("%s (400 Bad Request: %s) [device %d]", err.c_str(), url, tunerM.GetId());
+           break;
+           }
+        case 403: { // 403 Forbidden (SETUP, PLAY, TEARDOWN)
+           /* The message body of the response may contain "Out-of-Range:"
+            * followed by a space-sep list of attribute names that are
+            * not understood:
+            *   "src" "fe" "freq" "pol" "msys" "mtype" "plts"
+            *   "ro" "sr" "fec" "pids" "addpids" "delpids" "mcast"
+            */
+           std::string err(__FUNCTION__);
+           if (!isempty(*errorOutOfRangeM))
+              err += " Out-of-Range: " + std::string(*errorOutOfRangeM) + " ";
+           error("%s (403 Forbidden: %s) [device %d]", err.c_str(), url, tunerM.GetId());
+           /* Resetting the connection wouldn't help anything due to
+            * invalid channel configuration, so let it be successful
+            */
+           result = true;
+           break;
+           }
+        case 503: { // 503 Service Unavailable (SETUP, PLAY)
+           /* The message body of the response may contain "No-More:"
+            * followed by a space-sep list of missing ressources:
+            *   "sessions" "frontends" "pids"
+            */
+           std::string err(__FUNCTION__);
+           if (!isempty(*errorNoMoreM))
+              err += " No-More: " + std::string(*errorNoMoreM) + " ";
+           error("%s (503 Service Unavailable: %s) [device %d]", err.c_str(), url, tunerM.GetId());
+           break;
+           }
+        default: // 501 NOT IMPLEMENTED, 551 Unsupported Header
+           error("Detected invalid status code %ld: %s [device %d]", rc, url, tunerM.GetId());
+           break;
+           }
      if (rcP)
         *rcP = rc;
      }
