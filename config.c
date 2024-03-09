@@ -55,7 +55,9 @@ unsigned int cSatipConfig::GetDisabledSourcesCount(void) const
 
 int cSatipConfig::GetDisabledSources(unsigned int indexP) const
 {
-  return (indexP < ELEMENTS(disabledSourcesM)) ? disabledSourcesM[indexP] : cSource::stNone;
+  if (indexP < ELEMENTS(disabledSourcesM))
+     return disabledSourcesM[indexP];
+  return cSource::stNone;
 }
 
 void cSatipConfig::SetDisabledSources(unsigned int indexP, int sourceP)
