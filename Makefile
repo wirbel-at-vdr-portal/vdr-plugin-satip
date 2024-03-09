@@ -3,8 +3,10 @@
 #
 
 # Use TinyXML instead of PugiXML
-
 #SATIP_USE_TINYXML = 1
+
+# uncomment next line for quiet compiler messages
+#Q = @
 
 # The official name of this plugin.
 # This name will be used in the '-P...' option of VDR to load the plugin.
