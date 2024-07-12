@@ -864,7 +864,7 @@ cString cSatipTuner::GetSignalStatus(void)
         return cString::sprintf("lock=%d strength=%d quality=%d frontend=%d", HasLock(), SignalStrength(), SignalQuality(), FrontendId());
      default:
         return "lock=0 strength=0 quality=0 frontend=-1";
-     } 
+     }
 }
 
 cString cSatipTuner::GetInformation(void)
