@@ -169,6 +169,7 @@ public:
   bool HasLock(void);
   cString GetSignalStatus(void);
   cString GetInformation(void);
+  void SetPowerSaveMode(bool On);
 
   // for internal tuner interface
 public:

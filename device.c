@@ -213,7 +213,7 @@ bool cSatipDevice::SignalStats(int &Valid, double *Strength, double *Cnr, double
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIndex);
   Valid = DTV_STAT_VALID_NONE;
-  if (Strength && tuner) {
+  if (Strength && tuner && tuner->HasLock()) {
      *Strength =  tuner->SignalStrengthDBm();
      if (*Strength < -18.0) /* valid: -71.458 .. -18.541, invalid: 0.0 */
         Valid |= DTV_STAT_VALID_STRENGTH;
@@ -303,11 +303,7 @@ bool cSatipDevice::ProvidesChannel(const cChannel *channelP, int priorityP, bool
 
 bool cSatipDevice::ProvidesEIT(void) const
 {
-#if APIVERSNUM < 20403
-  return (SatipConfig.GetEITScan());
-#else
   return (SatipConfig.GetEITScan()) && DeviceHooksProvidesEIT();
-#endif
 }
 
 int cSatipDevice::NumProvidedSystems(void) const
@@ -340,9 +336,22 @@ bool cSatipDevice::IsTunedToTransponder(const cChannel *channelP) const
   return (strcmp(currentChannel.Parameters(), channelP->Parameters()) == 0);
 }
 
-bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
-{
-  return cDevice::MaySwitchTransponder(channelP);
+//bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
+//{
+//  return cDevice::MaySwitchTransponder(channelP);
+//}
+
+void cSatipDevice::SetPowerSaveMode(bool On) {
+  cMutexLock MutexLock(&SetChannelMtx);
+  if (On) {
+     if (tuner and tuner->IsTuned()) {
+        dbg_chan_switch("%s closing device %d",  __PRETTY_FUNCTION__, deviceIndex);
+        tuner->SetPowerSaveMode(On);
+        currentChannel = cChannel();
+        serverString.clear();
+        tsBuffer->Clear();
+        }
+     }
 }
 
 bool cSatipDevice::SetChannelDevice(const cChannel* channel, bool liveView)

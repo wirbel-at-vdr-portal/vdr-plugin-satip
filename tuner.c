@@ -103,6 +103,14 @@ cSatipTuner::~cSatipTuner()
   rtpM.Close();
 }
 
+void cSatipTuner::SetPowerSaveMode(bool On) {
+  cMutexLock MutexLock(&mutexM);
+  if (On and currentStateM > tsRelease) {
+     dbg_funcname("%s closing device %d", __PRETTY_FUNCTION__, deviceIdM);
+     RequestState(tsRelease, smExternal);
+     }
+}
+
 void cSatipTuner::Action(void)
 {
   dbg_funcname("%s Entering [device %d]", __PRETTY_FUNCTION__, deviceIdM);
@@ -827,19 +835,19 @@ int cSatipTuner::FrontendId(void)
 int cSatipTuner::SignalStrength(void)
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return signalStrengthM;
+  return (currentStateM >= tsTuned) ? signalStrengthM : 0;
 }
 
 double cSatipTuner::SignalStrengthDBm(void)
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return signalStrengthDBmM;
+  return (currentStateM >= tsTuned) ? signalStrengthDBmM : 0;
 }
 
 int cSatipTuner::SignalQuality(void)
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return signalQualityM;
+  return (currentStateM >= tsTuned) ? signalQualityM : 0;
 }
 
 bool cSatipTuner::HasLock(void)
@@ -851,11 +859,21 @@ bool cSatipTuner::HasLock(void)
 cString cSatipTuner::GetSignalStatus(void)
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return cString::sprintf("lock=%d strength=%d quality=%d frontend=%d", HasLock(), SignalStrength(), SignalQuality(), FrontendId());
+  switch(currentStateM) {
+     case tsTuned ... tsLocked:
+        return cString::sprintf("lock=%d strength=%d quality=%d frontend=%d", HasLock(), SignalStrength(), SignalQuality(), FrontendId());
+     default:
+        return "lock=0 strength=0 quality=0 frontend=-1";
+     } 
 }
 
 cString cSatipTuner::GetInformation(void)
 {
   dbg_funcname_ext("%s [device %d]", __PRETTY_FUNCTION__, deviceIdM);
-  return (currentStateM >= tsTuned) ? cString::sprintf("%s?%s (%s) [stream=%d]", *GetBaseUrl(*streamAddrM, streamPortM), *streamParamM, *rtspM.GetActiveMode(), streamIdM) : "connection failed";
+  switch(currentStateM) {
+     case tsIdle ... tsSet:
+        return cString::sprintf("no connection: %s", TunerStateString(currentStateM));
+     default:
+        return cString::sprintf("%s?%s (%s) [stream=%d]", *GetBaseUrl(*streamAddrM, streamPortM), *streamParamM, *rtspM.GetActiveMode(), streamIdM);
+     }
 }
