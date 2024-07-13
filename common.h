@@ -13,12 +13,8 @@
 #include <vdr/config.h>
 #include <vdr/i18n.h>
 
-#ifndef APIVERSNUM
-   #error "VDR API Version undefined.\n This is probably a Makefile error."
-#else
-   #if APIVERSNUM < 20400
-      #error "VDR-2.4.0 or greater is required!"
-   #endif
+#if !defined(APIVERSNUM) || (APIVERSNUM < 20600)
+   #error "VDR-2.6.0 or greater is required!"
 #endif
 
 #define SATIP_DEFAULT_RTSP_PORT          554
