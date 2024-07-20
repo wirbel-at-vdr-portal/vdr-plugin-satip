@@ -361,7 +361,7 @@ bool cSatipDevice::SetChannelDevice(const cChannel* channel, bool liveView)
   if (not channel) {
      // does never ever happen
      error("Unexpected: %s called with (NULL, %s) [device %d]", __PRETTY_FUNCTION__,
-           liveView?"true":"false", deviceIdM);
+           liveView?"true":"false", deviceIndex);
      return false;
      }
 
