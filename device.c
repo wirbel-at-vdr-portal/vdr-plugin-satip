@@ -357,46 +357,50 @@ void cSatipDevice::SetPowerSaveMode(bool On) {
 bool cSatipDevice::SetChannelDevice(const cChannel* channel, bool liveView)
 {
   cMutexLock MutexLock(&SetChannelMtx);  // Global lock to prevent any simultaneous zapping
+
+  if (not channel) {
+     // does never ever happen
+     error("Unexpected: %s called with (NULL, %s) [device %d]", __PRETTY_FUNCTION__,
+           liveView?"true":"false", deviceIdM);
+     return false;
+     }
+
   dbg_chan_switch("%s (%d, %d) [device %d]",
-      __PRETTY_FUNCTION__, channel ? channel->Number() : -1, liveView, deviceIndex);
+      __PRETTY_FUNCTION__, channel->Number(), liveView, deviceIndex);
 
   if (tuner == nullptr) {
      dbg_chan_switch("%s [device %d] -> false (no tuner)", __PRETTY_FUNCTION__, deviceIndex);
      return false;
      }
 
-  if (channel) {
-     std::string params = GetTransponderUrlParameters(channel);
-     if (params.empty()) {
-        error("Unrecognized channel parameters: %s [device %d]", channel->Parameters(), deviceIndex);
-        return false;
-        }
 
-     auto discover = cSatipDiscover::GetInstance();
-     auto server = discover->AssignServer(deviceIndex,
-                                          channel->Source(),
-                                          channel->Transponder(),
-                                          cDvbTransponderParameters(channel->Parameters()).System());
-
-     if (!server) {
-        dbg_chan_switch("%s No server for %s [device %d]",
-            __PRETTY_FUNCTION__, *channel->ToText(), deviceIndex);
-        return false;
-        }
-
-     serverString = *discover->GetServerString(server);
-
-     if (tuner->SetSource(server, channel->Transponder(), params.c_str(), deviceIndex)) {
-        currentChannel = *channel;
-        // Wait for actual channel tuning to prevent simultaneous frontend allocation failures
-        tunerLocked.TimedWait(SetChannelMtx, eTuningTimeoutMs);
-        return true;
-        }
+  std::string params = GetTransponderUrlParameters(channel);
+  if (params.empty()) {
+     error("Unrecognized channel parameters: %s [device %d]", channel->Parameters(), deviceIndex);
+     return false;
      }
-  else {
-     tuner->SetSource(nullptr, 0, nullptr, deviceIndex);
-     serverString.clear();
+
+  auto discover = cSatipDiscover::GetInstance();
+  auto server = discover->AssignServer(deviceIndex,
+                                       channel->Source(),
+                                       channel->Transponder(),
+                                       cDvbTransponderParameters(channel->Parameters()).System());
+
+  if (!server) {
+     dbg_chan_switch("%s No server for %s [device %d]", __PRETTY_FUNCTION__, *channel->ToText(), deviceIndex);
+     return false;
      }
+
+  serverString = *discover->GetServerString(server);
+
+  if (tuner->SetSource(server, channel->Transponder(), params.c_str(), deviceIndex)) {
+     currentChannel = *channel;
+     /* Wait for actual channel tuning to prevent simultaneous frontend allocation failures.
+      * Either timeout 1000ms or stopped by tuner using SetChannelTuned().
+      */
+     tunerLocked.TimedWait(SetChannelMtx, eTuningTimeoutMs);
+     }
+
   return true;
 }
 
