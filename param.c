@@ -578,16 +578,14 @@ std::string GetTnrUrlParameters(const cChannel* channel) {
 }
 
 int SrcIdToSource(int pos) {
+  char Pos = '0' + pos; // 0..4
   for(cSource* s = Sources.First(); s; s = Sources.Next(s)) {
      if ((s->Code() >> 24) != 'S')
         continue;
 
      const char* d = s->Description();
-
-     if (!d or *d < '1' and *d > '4')
-        continue;
-
-     return s->Code();
+     if (d and *d == Pos)
+        return s->Code();
      }
   return -1;
 }
