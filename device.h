@@ -79,8 +79,8 @@ public:
   virtual bool ProvidesEIT(void) const;
   virtual int NumProvidedSystems(void) const;
   virtual const cChannel *GetCurrentlyTunedTransponder(void) const;
-  virtual bool IsTunedToTransponder(const cChannel *channelP) const;
-//virtual bool MaySwitchTransponder(const cChannel *channelP) const;
+  virtual bool IsTunedToTransponder(const cChannel *Channel) const;
+//virtual bool MaySwitchTransponder(const cChannel *Channel) const;
   virtual void SetPowerSaveMode(bool On);
 
 

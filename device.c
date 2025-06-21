@@ -327,16 +327,65 @@ const cChannel *cSatipDevice::GetCurrentlyTunedTransponder(void) const
   return &currentChannel;
 }
 
-bool cSatipDevice::IsTunedToTransponder(const cChannel *channelP) const
+bool cSatipDevice::IsTunedToTransponder(const cChannel *Channel) const
 {
-  if (tuner && !tuner->IsTuned())
-     return false;
-  if ((currentChannel.Source() != channelP->Source()) || (currentChannel.Transponder() != channelP->Transponder()))
-     return false;
-  return (strcmp(currentChannel.Parameters(), channelP->Parameters()) == 0);
+  bool result = false;
+  auto Get = [](const char p, const char* s) -> int {
+     while(*s) {
+        if (*s++==p) {
+           int i=0;
+           while(*s and *s<'A') i = 10*i+(*s++-'0');
+           return i;
+           }
+        }
+     return -1;
+     };
+
+  if (tuner and tuner->IsTuned()) {
+     if (currentChannel.Source() != Channel->Source()) {
+        dbg_chan_switch("%s: source different: %d != %d [device %d]",
+            __PRETTY_FUNCTION__, currentChannel.Source(), Channel->Source(), deviceIndex);
+        return false;
+        }
+     const char* param1 = currentChannel.Parameters();
+     const char* param2 = Channel->Parameters();
+
+     dbg_chan_switch("%s: Source ='%c', '%d %s' vs '%d %s' [device %d]",
+         __PRETTY_FUNCTION__, Channel->Source() >> 24, currentChannel.Transponder(),
+         param1, Channel->Transponder(), param2, deviceIndex);
+
+     /* As we are already tuned, we check only basic params.
+      * 'Channel' may be invalid though and getting updated later.
+      */
+     switch(Channel->Source() >> 24) {
+        case 'A':
+           result = (currentChannel.Transponder() == Channel->Transponder()) and
+                    (Get('M', param1) == Get('M', param2));
+           break;
+        case 'C':
+           result = (currentChannel.Transponder() == Channel->Transponder()) and
+                    (currentChannel.Srate() == Channel->Srate());
+           break;
+        case 'S':
+           result = (abs(currentChannel.Transponder() - Channel->Transponder()) < 3) and
+                    (Get('S', param1) == Get('S', param2));
+           break;
+        case 'T':
+           result = (currentChannel.Transponder() == Channel->Transponder()) and
+                    (Get('S', param1) == Get('S', param2));
+           break;
+        default:
+           result = false;
+        }
+     }
+
+  dbg_chan_switch("%s: result = %s [device %d]",
+      __PRETTY_FUNCTION__, result?"true":"false", deviceIndex);
+
+  return result;
 }
 
-//bool cSatipDevice::MaySwitchTransponder(const cChannel *channelP) const
+//bool cSatipDevice::MaySwitchTransponder(const cChannel *Channel) const
 //{
 //  return cDevice::MaySwitchTransponder(channelP);
 //}
