@@ -67,7 +67,27 @@ const char *cPluginSatip::CommandLineHelp(void)
   dbg_funcname("%s", __PRETTY_FUNCTION__);
   // Return a string that describes all known command line options.
   return "  -d <num>, --devices=<number>  set number of devices to be created\n"
-         "  -t <mode>, --trace=<mode>     set the debug mode\n"
+         "  -t <mode>, --trace=<mode>     set the debug mode. This is an or-ed integer\n"
+         "                                of flags, see in config.h  enum eDebugMode.\n"
+         "  --debug <mode>                add debugging. Please select a topic.\n"
+         "                                NOTE: ToStdout and ToStderr redirect the log.\n"
+         "                                      Repeat --debug <mode> to combine flags\n"
+         "                                CallStack\n"
+         "                                CurlDataFlow\n"
+         "                                DataParsing\n"
+         "                                TunerState\n"
+         "                                RtspResponse\n"
+         "                                RtpPerformance\n"
+         "                                RtpPacket\n"
+         "                                SectionFiltering\n"
+         "                                ChannelSwitching\n"
+         "                                Rtcp\n"
+         "                                CommonInterface\n"
+         "                                Pids\n"
+         "                                Discovery\n"
+         "                                ToStdout\n"
+         "                                CallStackExt\n"
+         "                                ToStderr\n"
          "  -s <ipaddr>|<model>|<desc>, --server=[<srcaddress>@]<ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...\n"
          "                                define hard-coded SAT>IP server(s)\n\n"
          "                                srcaddress (Optional)  Source address can be used to define used\n"
@@ -113,6 +133,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
     { "rcvbuf",   required_argument, NULL, 'r' },
     { "detach",   no_argument,       NULL, 'D' },
     { "single",   no_argument,       NULL, 'S' },
+    { "debug",    required_argument, NULL,  1  },
     { "noquirks", no_argument,       NULL, 'n' },
     { NULL,       no_argument,       NULL,  0  }
     };
@@ -128,6 +149,28 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
       case 't':
            SatipConfig.SetDebugMode(strtol(optarg, NULL, 0));
            break;
+      case 1: /* --debug <mode> */ {
+           unsigned int u = SatipConfig.GetDebugMode();
+           std::string s(optarg);
+           if      (s == "CallStack")        u |= cSatipConfig::DbgCallStack;
+           else if (s == "CurlDataFlow")     u |= cSatipConfig::DbgCurlDataFlow;
+           else if (s == "DataParsing")      u |= cSatipConfig::DbgDataParsing;
+           else if (s == "TunerState")       u |= cSatipConfig::DbgTunerState;
+           else if (s == "RtspResponse")     u |= cSatipConfig::DbgRtspResponse;
+           else if (s == "RtpPerformance")   u |= cSatipConfig::DbgRtpPerformance;
+           else if (s == "RtpPacket")        u |= cSatipConfig::DbgRtpPacket;
+           else if (s == "SectionFiltering") u |= cSatipConfig::DbgSectionFiltering;
+           else if (s == "ChannelSwitching") u |= cSatipConfig::DbgChannelSwitching;
+           else if (s == "Rtcp")             u |= cSatipConfig::DbgRtcp;
+           else if (s == "CommonInterface")  u |= cSatipConfig::DbgCommonInterface;
+           else if (s == "Pids")             u |= cSatipConfig::DbgPids;
+           else if (s == "Discovery")        u |= cSatipConfig::DbgDiscovery;
+           else if (s == "ToStdout")         u |= cSatipConfig::DbgToStdout;
+           else if (s == "CallStackExt")     u |= cSatipConfig::DbgCallStackExt;
+           else if (s == "ToStderr")         u |= cSatipConfig::DbgToStderr;
+           SatipConfig.SetDebugMode(u);
+           break;
+           }
       case 's':
            server = optarg;
            break;
