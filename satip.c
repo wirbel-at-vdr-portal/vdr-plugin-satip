@@ -25,7 +25,7 @@
 #define GITVERSION ""
 #endif
 
-       const char VERSION[]     = "20240224" GITVERSION;
+       const char VERSION[]     = "20250621" GITVERSION;
 static const char DESCRIPTION[] = trNOOP("SAT>IP Devices");
 
 

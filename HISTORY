@@ -256,3 +256,28 @@ VDR Plugin 'satip' Revision History
     - avoid empty and therefore useless requests to SATIP server
 - cleanup whitespaces after backport
 - update HISTORY && prepare for tag 20240224
+
+20240720@wirbel
+----------------------------------------------------------------------
+- config.c:58
+  - avoid enum and non-enum type in conditional statement
+- rtsp.c
+  - fix misaligned break statements
+- Makefile
+  - allow qiet compiler messages
+  - allow PKG_CONFIG to be overridden
+- device.{c,h}, tuner.{c,h}
+  - add powersave state for idling devices
+- drop vdr-2.4.x
+- device.c
+  - SetChannelDevice() is never called with channel == NULL
+  - typo: deviceIdM -> deviceIndex
+
+20250621@wirbel
+----------------------------------------------------------------------
+- add doc/satip_specification_version_1_2_2.pdf
+- param.c
+  - fix SrcIdToSource()
+- device.{c,h}
+  - rework cSatipDevice::IsTunedToTransponder()
+- update HISTORY for 20240720 + 20250621 && prepare for tag 20250621
