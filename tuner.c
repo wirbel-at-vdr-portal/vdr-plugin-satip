@@ -186,7 +186,7 @@ void cSatipTuner::Action(void)
                if (idleCheck.TimedOut()) {
                   bool currentIdleStatus = deviceM.IsIdle();
                   if (lastIdleStatus && currentIdleStatus) {
-                     info("Idle timeout - releasing [device %d]", deviceIdM);
+                     dbg_tunerstate("Idle timeout - releasing [device %d]", deviceIdM);
                      RequestState(tsRelease, smInternal);
                      }
                   lastIdleStatus = currentIdleStatus;
