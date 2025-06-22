@@ -162,7 +162,7 @@ void cSatipTuner::Action(void)
                      RequestState(tsLocked, smInternal);
                   }
                else if (tuning.TimedOut()) {
-                  error("Tuning timeout - retuning [device %d]", deviceIdM);
+                  dbg_tunerstate("Tuning timeout - retuning [device %d]", deviceIdM);
                   RequestState(tsSet, smInternal);
                   }
                break;
