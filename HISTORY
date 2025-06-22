@@ -281,3 +281,24 @@ VDR Plugin 'satip' Revision History
 - device.{c,h}
   - rework cSatipDevice::IsTunedToTransponder()
 - update HISTORY for 20240720 + 20250621 && prepare for tag 20250621
+
+2025xxxx@wirbel
+----------------------------------------------------------------------
+- satip.c
+  - make debug flags more human readable
+- config.{c,h}, device.c, *.po, satip.c, setup.{c,h}
+  - make power saving configurable per menu
+- config.h, device.c, log.h, satip.c
+  - add separate power save debug messages
+- tuner.c, reduce verbosity
+  - change 'Idle timeout - releasing [device %d]' from info() to dbg_tunerstate()
+  - changing 'Tuning timeout - retuning [device %d]' from error() to dbg_tunerstate()
+- rtp.c, reduce verbosity
+  - change 'Detected %d RTP packet error%s [device %d]' from info() to dbg_rtp_packet()
+- satip.c
+  - print all active debug flags
+(..)
+- HISTORY
+  - document changes.
+
+
