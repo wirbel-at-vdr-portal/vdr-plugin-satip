@@ -195,6 +195,28 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            return false;
       }
     }
+
+  // if debug is enabled, print which flags are active.
+  dbg_funcname     (": debug ON");
+  dbg_curlinfo     (": debug ON");
+  dbg_parsing      (": debug ON");
+  dbg_tunerstate   (": debug ON");
+  dbg_rtsp         (": debug ON");
+  dbg_rtp_perf     (": debug ON");
+  dbg_rtp_packet   (": debug ON");
+  dbg_sectionfilter(": debug ON");
+  dbg_chan_switch  (": debug ON");
+  dbg_pwr_save     (": debug ON");
+  dbg_rtcp         (": debug ON");
+  dbg_ci           (": debug ON");
+  dbg_pids         (": debug ON");
+  dbg_msearch      (": debug ON");
+  dbg_funcname_ext (": debug ON");
+  if (SatipConfig.IsDebugMode(cSatipConfig::DbgToStdout))
+     info("debug to stdout active");
+  if (SatipConfig.IsDebugMode(cSatipConfig::DbgToStderr))
+     info("debug to stderr active");
+
   if (!isempty(*portrange))
      ParsePortRange(portrange);
   // this must be done after all parameters are parsed
