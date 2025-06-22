@@ -88,6 +88,7 @@ const char *cPluginSatip::CommandLineHelp(void)
          "                                ToStdout\n"
          "                                CallStackExt\n"
          "                                ToStderr\n"
+         "                                PowerSave\n"
          "  -s <ipaddr>|<model>|<desc>, --server=[<srcaddress>@]<ipaddress>[:<port>]|<model>[:<filter>]|<description>[:<quirk>];...\n"
          "                                define hard-coded SAT>IP server(s)\n\n"
          "                                srcaddress (Optional)  Source address can be used to define used\n"
@@ -168,6 +169,7 @@ bool cPluginSatip::ProcessArgs(int argc, char *argv[])
            else if (s == "ToStdout")         u |= cSatipConfig::DbgToStdout;
            else if (s == "CallStackExt")     u |= cSatipConfig::DbgCallStackExt;
            else if (s == "ToStderr")         u |= cSatipConfig::DbgToStderr;
+           else if (s == "PowerSave")        u |= cSatipConfig::DbgPowerSave;
            SatipConfig.SetDebugMode(u);
            break;
            }

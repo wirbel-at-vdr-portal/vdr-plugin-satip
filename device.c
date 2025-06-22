@@ -395,7 +395,7 @@ void cSatipDevice::SetPowerSaveMode(bool On) {
      if (On) {
         cMutexLock MutexLock(&SetChannelMtx);
         if (tuner and tuner->IsTuned()) {
-           dbg_chan_switch("%s closing device %d",  __PRETTY_FUNCTION__, deviceIndex);
+           dbg_pwr_save("%s closing device %d",  __PRETTY_FUNCTION__, deviceIndex);
            tuner->SetPowerSaveMode(On);
            currentChannel = cChannel();
            serverString.clear();

@@ -25,6 +25,7 @@
 #define dbg_rtp_packet(x...)     if (SatipConfig.IsDebugMode(cSatipConfig::DbgRtpPacket))        _D_("SATIP: RTP " x);
 #define dbg_sectionfilter(x...)  if (SatipConfig.IsDebugMode(cSatipConfig::DbgSectionFiltering)) _D_("SATIP: sectionfilter " x);
 #define dbg_chan_switch(x...)    if (SatipConfig.IsDebugMode(cSatipConfig::DbgChannelSwitching)) _D_("SATIP: channel " x);
+#define dbg_pwr_save(x...)       if (SatipConfig.IsDebugMode(cSatipConfig::DbgPowerSave))        _D_("SATIP: power save " x);
 #define dbg_rtcp(x...)           if (SatipConfig.IsDebugMode(cSatipConfig::DbgRtcp))             _D_("SATIP: RTCP " x);
 #define dbg_ci(x...)             if (SatipConfig.IsDebugMode(cSatipConfig::DbgCommonInterface))  _D_("SATIP: CI " x);
 #define dbg_pids(x...)           if (SatipConfig.IsDebugMode(cSatipConfig::DbgPids))             _D_("SATIP: PIDS " x);
