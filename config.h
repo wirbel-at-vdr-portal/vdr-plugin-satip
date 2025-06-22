@@ -18,6 +18,7 @@ private:
   unsigned int debugModeM;
   unsigned int ciExtensionM;
   unsigned int frontendReuseM;
+  unsigned int powersave;
   unsigned int eitScanM;
   unsigned int useBytesM;
   unsigned int portRangeStartM;
@@ -77,6 +78,7 @@ public:
   bool IsDebugMode(eDebugMode modeP) const { return (debugModeM & modeP); }
   unsigned int GetCIExtension(void) const { return ciExtensionM; }
   unsigned int GetFrontendReuse(void) const { return frontendReuseM; }
+  unsigned int GetPowerSave(void) const { return powersave; }
   int GetCICAM(unsigned int indexP) const;
   unsigned int GetEITScan(void) const { return eitScanM; }
   unsigned int GetUseBytes(void) const { return useBytesM; }
@@ -99,6 +101,7 @@ public:
   void SetDebugMode(unsigned int modeP) { debugModeM = (modeP & DbgModeMask); }
   void SetCIExtension(unsigned int onOffP) { ciExtensionM = onOffP; }
   void SetFrontendReuse(unsigned int onOffP) { frontendReuseM = onOffP; }
+  void SetPowerSave(unsigned int On) { powersave = On; }
   void SetCICAM(unsigned int indexP, int cicamP);
   void SetEITScan(unsigned int onOffP) { eitScanM = onOffP; }
   void SetUseBytes(unsigned int onOffP) { useBytesM = onOffP; }

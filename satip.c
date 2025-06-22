@@ -443,6 +443,8 @@ bool cPluginSatip::SetupParse(const char *nameP, const char *valueP)
      SatipConfig.SetCIExtension(atoi(valueP));
   else if (!strcasecmp(nameP, "EnableFrontendReuse"))
      SatipConfig.SetFrontendReuse(atoi(valueP));
+  else if (!strcasecmp(nameP, "EnablePowerSave"))
+     SatipConfig.SetPowerSave(atoi(valueP));
   else if (!strcasecmp(nameP, "CICAM")) {
      int Cicams[MAX_CICAM_COUNT];
      for (unsigned int i = 0; i < ELEMENTS(Cicams); ++i)

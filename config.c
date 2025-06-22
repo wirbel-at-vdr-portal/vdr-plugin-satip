@@ -16,6 +16,7 @@ cSatipConfig::cSatipConfig(void)
   debugModeM(DbgNormal),
   ciExtensionM(0),
   frontendReuseM(1),
+  powersave(1),
   eitScanM(1),
   useBytesM(1),
   portRangeStartM(0),

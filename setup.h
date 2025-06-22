@@ -23,6 +23,7 @@ private:
   const char *transportModeTextsM[cSatipConfig::eTransportModeCount];
   int ciExtensionM;
   int frontendReuseM;
+  int powersave;
   int cicamsM[MAX_CICAM_COUNT];
   const char *cicamTextsM[CA_SYSTEMS_TABLE_SIZE];
   int eitScanM;

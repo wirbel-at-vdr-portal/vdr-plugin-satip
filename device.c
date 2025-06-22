@@ -391,14 +391,16 @@ bool cSatipDevice::IsTunedToTransponder(const cChannel *Channel) const
 //}
 
 void cSatipDevice::SetPowerSaveMode(bool On) {
-  cMutexLock MutexLock(&SetChannelMtx);
-  if (On) {
-     if (tuner and tuner->IsTuned()) {
-        dbg_chan_switch("%s closing device %d",  __PRETTY_FUNCTION__, deviceIndex);
-        tuner->SetPowerSaveMode(On);
-        currentChannel = cChannel();
-        serverString.clear();
-        tsBuffer->Clear();
+  if (SatipConfig.GetPowerSave()) {
+     if (On) {
+        cMutexLock MutexLock(&SetChannelMtx);
+        if (tuner and tuner->IsTuned()) {
+           dbg_chan_switch("%s closing device %d",  __PRETTY_FUNCTION__, deviceIndex);
+           tuner->SetPowerSaveMode(On);
+           currentChannel = cChannel();
+           serverString.clear();
+           tsBuffer->Clear();
+           }
         }
      }
 }
