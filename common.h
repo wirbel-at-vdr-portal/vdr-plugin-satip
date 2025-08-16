@@ -37,7 +37,7 @@
 #define SECTION_FILTER_TABLE_SIZE        5
 
 #define MAX_CICAM_COUNT                  2
-#define CA_SYSTEMS_TABLE_SIZE            47
+#define CA_SYSTEMS_TABLE_SIZE            156
 
 #define SATIP_CURL_EASY_GETINFO(X, Y, Z) \
   if ((res = curl_easy_getinfo((X), (Y), (Z))) != CURLE_OK) { \
